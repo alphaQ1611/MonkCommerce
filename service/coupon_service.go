@@ -136,50 +136,42 @@ func GetApplicableCoupons(body []byte) ([]models.ApplicableCoupon, error) {
 		return nil, fmt.Errorf("Invalid cart data")
 	}
 
+	allCoupons, _ := storage.GetCoupons()
+	if len(allCoupons) == 0 {
+		return nil, nil
+	}
 
-    allCoupons, _ := storage.GetCoupons()
-    if len(allCoupons) == 0 {
-        return nil, nil
-    }
-
-    coupons := []models.ApplicableCoupon{}
+	coupons := []models.ApplicableCoupon{}
 
     for _, coupon := range allCoupons {
-        if coupon.CouponType == "cart-wise" {
-            couponDetails := coupon.CouponDetails.(models.CartWiseDetails)
-            ok, discount := couponDetails.IsAppicable(&cart)
-            if ok {
-                applicableCoupon := models.ApplicableCoupon{
-                    CouponID: coupon.Id,
-                    Type:     coupon.CouponType,
-                    Discount: discount,
-                }
-                coupons = append(coupons, applicableCoupon)
-
+        ok, discount := coupon.CouponDetails.(models.CouponDetails).IsApplicable(&cart)
+        if ok {
+            applicableCoupon := models.ApplicableCoupon{
+                CouponID: coupon.Id,
+                Type:     coupon.CouponType,
+                Discount: discount,
             }
-        }else if coupon.CouponType == "product-wise" {
-            couponDetails := coupon.CouponDetails.(models.ProductWiseDetails)
-            ok, discount := couponDetails.IsAppicable(&cart)
-            if ok {
-                applicableCoupon := models.ApplicableCoupon{
-                    CouponID: coupon.Id,
-                    Type:     coupon.CouponType,
-                    Discount: discount,
-                }
-                coupons = append(coupons, applicableCoupon)
-            }
-        } else if coupon.CouponType == "bxgy" {
-            couponDetails := coupon.CouponDetails.(models.BxGyDetails)
-            ok, discount := couponDetails.IsApplicable(&cart)
-            if ok {
-                applicableCoupon := models.ApplicableCoupon{
-                    CouponID: coupon.Id,
-                    Type:     coupon.CouponType,
-                    Discount: discount,
-                }
-                coupons = append(coupons, applicableCoupon)
-            }
+            coupons = append(coupons, applicableCoupon)
         }
     }
+
 	return coupons, nil
+}
+
+func ApplyCoupon(id int, body []byte) (models.Cart, error) {
+	var cart models.Cart
+	var cartRequest CartRequest
+
+	err := json.Unmarshal(body, &cartRequest)
+	cart = cartRequest.Cart
+	if err != nil {
+		return models.Cart{}, fmt.Errorf("Invalid cart data")
+	}
+	coupon, err := storage.GetCouponByID(id)
+	if err != nil {
+		return models.Cart{}, fmt.Errorf("Coupon not found")
+	}
+	coupon.CouponDetails.(models.CouponDetails).ApplyCoupon(&cart)
+
+	return cart, nil
 }

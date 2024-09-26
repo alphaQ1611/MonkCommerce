@@ -1,7 +1,7 @@
 package models
 
 type CouponDetails interface {
-	IsAppicable(cart *Cart) bool
+	IsApplicable(cart *Cart) (bool, float32)
 	ApplyCoupon(cart *Cart)
 }
 

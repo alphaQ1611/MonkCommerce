@@ -1,14 +1,17 @@
 package models
 
-func (cd *CartWiseDetails) IsAppicable(cart *Cart) (bool, float32) {
+func (cd *CartWiseDetails) IsApplicable(cart *Cart) (bool, float32) {
 	cart.Total = calculateTotal(cart)
 	return cart.Total >= cd.Threshold, cd.calculateDiscount(cart)
 }
 
 func (cd *CartWiseDetails) ApplyCoupon(cart *Cart) {
+    cart.Total = calculateTotal(cart)
+    cart.TotalDiscount = cd.calculateDiscount(cart)
+    cart.FinalPrice = cart.Total - cart.TotalDiscount
 }
 
-func (pd *ProductWiseDetails) IsAppicable(cart *Cart) (bool, float32) {
+func (pd *ProductWiseDetails) IsApplicable(cart *Cart) (bool, float32) {
 	for _, item := range cart.Items {
 		if item.Product_id == pd.ProductID {
 			return true, pd.calculateDiscount(item)
@@ -19,6 +22,17 @@ func (pd *ProductWiseDetails) IsAppicable(cart *Cart) (bool, float32) {
 
 
 func (pd *ProductWiseDetails) ApplyCoupon(cart *Cart) {
+    discount := float32(0)
+    cart.Total = calculateTotal(cart)
+    for i := range cart.Items {
+        if cart.Items[i].Product_id == pd.ProductID {
+            cart.Items[i].TotalDiscount = pd.calculateDiscount(cart.Items[i])
+            discount += cart.Items[i].TotalDiscount
+        }
+    }
+
+    cart.TotalDiscount = discount
+    cart.FinalPrice = calculateTotal(cart) - discount
 }
 
 func (bx *BxGyDetails) IsApplicable(cart *Cart) (bool, float32) {
@@ -59,8 +73,10 @@ func (bx *BxGyDetails) IsApplicable(cart *Cart) (bool, float32) {
 	return true, bx.calculateDiscount(cart)
 }
 
-func (bx *BxGyDetails) ApplyCoupon(cart *Cart) float32 {
-	return 0
+func (bx *BxGyDetails) ApplyCoupon(cart *Cart)  {
+    discount := bx.calculateDiscount(cart)
+    cart.TotalDiscount = discount
+    cart.FinalPrice = calculateTotal(cart) - discount
 }
 
 func calculateTotal(cart *Cart) float32 {
@@ -105,6 +121,7 @@ func (bx *BxGyDetails) calculateDiscount(cart *Cart) float32 {
 		for _, cartItem := range cart.Items {
 			if cartItem.Product_id == getProduct.ProductID {
 				discount := float32(getProduct.Quantity) * cartItem.Price * float32(maxRepetitions)
+                cartItem.TotalDiscount = discount
 				totalDiscount += discount
 			}
 		}

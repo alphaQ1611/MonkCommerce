@@ -138,3 +138,28 @@ func getIdFromURI(uri string) (int, error) {
 	}
 	return id, nil
 }
+
+func HandleApplyCoupon(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodPost {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
+    }
+    body, err := io.ReadAll(r.Body)
+    defer r.Body.Close()
+    if err != nil {
+        http.Error(w, "Invalid Payload", http.StatusBadRequest)
+        return
+    }
+    id, err := getIdFromURI(r.URL.Path)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+    cart, err := service.ApplyCoupon(id, body)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(cart)
+}

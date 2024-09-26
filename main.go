@@ -6,9 +6,10 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/coupons", couponsHandler) 
+	http.HandleFunc("/coupons", couponsHandler)
 	http.HandleFunc("/coupons/", couponByIDHandler)
 	http.HandleFunc("/applicable-coupons", handler.HandleGetApplicableCoupons)
+	http.HandleFunc("/apply-coupon", handler.HandleApplyCoupon)
 	http.ListenAndServe(":8080", nil)
 }
 
