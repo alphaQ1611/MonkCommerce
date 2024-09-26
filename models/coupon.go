@@ -28,6 +28,6 @@ type BxGyDetails struct {
 
 type Coupon struct {
 	Id            int
-	CouponType    string      `json:"type"`
-	CouponDetails interface{} `json:"details"`
+	CouponType    string        `json:"type"`
+	CouponDetails CouponDetails `json:"details"`
 }

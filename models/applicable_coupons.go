@@ -7,5 +7,5 @@ type ApplicableCoupon struct {
 }
 
 type ApplicableCouponsResponse struct {
-	ApplicableCoupons []ApplicableCoupon `json:"applicable_coupons"` 
+	ApplicableCoupons []ApplicableCoupon `json:"applicable_coupons"`
 }

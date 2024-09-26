@@ -25,6 +25,7 @@ Coupon Types
 Assumptions
 	•	The system assumes that all product IDs are unique.
 	•	The cart and coupon structures are well-defined and adhere to the expected formats.
+    •	The system assumes that the coupon IDs are unique.
 
 Limitations
 	•	The system currently does not handle expired coupons. Adding expiration dates for coupons could enhance usability.
@@ -34,12 +35,12 @@ Implemented Cases
 
 	1.	Cart-wise Coupons: The system correctly checks if the cart total exceeds the threshold and applies the discount.
 	2.	Product-wise Coupons: Discounts are applied correctly to the specific products in the cart.
-	3.	BxGy Coupons: The functionality to determine applicable BxGy coupons based on the cart contents is partially implemented. The discount calculation logic is in place.
+	3.	BxGy Coupons: Discounts are applied correctly to products in the cart based on the repetition limit.
 
 Unimplemented Cases
 
-	•	Apply Coupon API: The endpoint to apply a coupon to the cart and return the updated cart with discounted prices is not implemented due to time constraints. This feature would require careful handling of cart updates and could benefit from additional testing.
 	•	Expiration Handling: Implementing expiration dates for coupons would add complexity to the system but is essential for real-world applications.
+    
 
 Suggestions for Improvement
 

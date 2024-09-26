@@ -143,17 +143,21 @@ func GetApplicableCoupons(body []byte) ([]models.ApplicableCoupon, error) {
 
 	coupons := []models.ApplicableCoupon{}
 
-    for _, coupon := range allCoupons {
-        ok, discount := coupon.CouponDetails.(models.CouponDetails).IsApplicable(&cart)
-        if ok {
-            applicableCoupon := models.ApplicableCoupon{
-                CouponID: coupon.Id,
-                Type:     coupon.CouponType,
-                Discount: discount,
-            }
-            coupons = append(coupons, applicableCoupon)
-        }
-    }
+	for _, coupon := range allCoupons {
+		couponDetails, ok := coupon.CouponDetails.(models.CouponDetails)
+		if !ok {
+			return nil, fmt.Errorf("Invalid coupon details")
+		}
+		applicable, discount := couponDetails.IsApplicable(&cart)
+		if applicable {
+			applicableCoupon := models.ApplicableCoupon{
+				CouponID: coupon.Id,
+				Type:     coupon.CouponType,
+				Discount: discount,
+			}
+			coupons = append(coupons, applicableCoupon)
+		}
+	}
 
 	return coupons, nil
 }

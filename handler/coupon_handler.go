@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"monkcommerce/service"
 	"net/http"
@@ -98,7 +99,7 @@ func HandleDeleteCoupon(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := getIdFromURI(r.URL.Path)
+	id, err := getIdFromURI(r.URL.Path, "/coupons/")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -130,8 +131,14 @@ func HandleGetApplicableCoupons(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(coupons)
 }
 
-func getIdFromURI(uri string) (int, error) {
-	idStr := strings.TrimPrefix(uri, "/coupons/")
+func getIdFromURI(uri, prefix string) (int, error) {
+	// Trim the prefix from the URI
+	idStr := strings.TrimPrefix(uri, prefix)
+	if idStr == uri { // No prefix matched
+		return 0, fmt.Errorf("no matching prefix found in URI")
+	}
+
+	// Convert the remaining string to an integer
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		return 0, err
@@ -140,26 +147,26 @@ func getIdFromURI(uri string) (int, error) {
 }
 
 func HandleApplyCoupon(w http.ResponseWriter, r *http.Request) {
-    if r.Method != http.MethodPost {
-        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-        return
-    }
-    body, err := io.ReadAll(r.Body)
-    defer r.Body.Close()
-    if err != nil {
-        http.Error(w, "Invalid Payload", http.StatusBadRequest)
-        return
-    }
-    id, err := getIdFromURI(r.URL.Path)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
-        return
-    }
-    cart, err := service.ApplyCoupon(id, body)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-    w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(cart)
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	body, err := io.ReadAll(r.Body)
+	defer r.Body.Close()
+	if err != nil {
+		http.Error(w, "Invalid Payload", http.StatusBadRequest)
+		return
+	}
+	id, err := getIdFromURI(r.URL.Path, "/apply-coupon/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	cart, err := service.ApplyCoupon(id, body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(cart)
 }

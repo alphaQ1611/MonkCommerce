@@ -34,12 +34,12 @@ func UpdateCoupon(id int, coupon models.Coupon) (models.Coupon, error) {
 	return coupon, nil
 }
 
-func DeleteCoupon(id int) error{
-    _, ok := Coupons[id]
-    if !ok {
-        return fmt.Errorf("Coupon not found")
-    }
-     delete(Coupons, id)
-    return nil
+func DeleteCoupon(id int) error {
+	_, ok := Coupons[id]
+	if !ok {
+		return fmt.Errorf("Coupon not found")
+	}
+	delete(Coupons, id)
+	return nil
 
 }
