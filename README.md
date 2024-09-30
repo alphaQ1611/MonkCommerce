@@ -29,7 +29,7 @@ Assumptions
 
 Limitations
 	•	The system currently does not handle expired coupons. Adding expiration dates for coupons could enhance usability.
-	•	The last API endpoint (POST /apply-coupon/{id}) is not yet implemented, although the discount calculation function is complete.
+	
 
 Implemented Cases
 
